@@ -5,6 +5,7 @@ import  { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom'
 import React from 'react';     
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, incrementQuantity, decrementQuantity } from './store';
+import Cart from './components/Cart.jsx';
 import Products from './components/products.jsx'; 
 import AddProducts  from './components/addProducts.jsx';
 import Home from './components/home.jsx';
@@ -44,7 +45,7 @@ function App() {
           </div>
         </nav>
 
-        {/* Cart Modal */}
+        {/* Cart Modal using Cart component */}
         {showCart && (
           <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered">
@@ -54,33 +55,7 @@ function App() {
                   <button type="button" className="btn-close" onClick={() => setShowCart(false)}></button>
                 </div>
                 <div className="modal-body">
-                  {cart.length === 0 ? (
-                    <div>Your cart is empty.</div>
-                  ) : (
-                    <ul className="list-group mb-3">
-                  {cart.map((item, idx) => (
-                    <li key={item.id + '-' + idx} className="list-group-item d-flex justify-content-between align-items-center">
-                      <div className="d-flex align-items-center">
-                        <img src={item.image} alt={item.title} style={{ width: 50, height: 50, objectFit: 'contain', marginRight: 10 }} />
-                        <div>
-                          <strong>{item.title}</strong> <span className="text-muted">${item.price}</span>
-                          <div className="input-group input-group-sm mt-2" style={{ maxWidth: 120 }}>
-                            <button className="btn btn-outline-secondary" onClick={() => dispatch(decrementQuantity(item.id))}>-</button>
-                            <input type="text" className="form-control text-center" value={item.quantity || 1} readOnly style={{ width: 40 }} />
-                            <button className="btn btn-outline-secondary" onClick={() => dispatch(incrementQuantity(item.id))}>+</button>
-                          </div>
-                        </div>
-                      </div>
-                      <button className="btn btn-danger btn-sm" onClick={() => dispatch(removeFromCart(item.id))}>
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                    </ul>
-                  )}
-                  <div className="mt-3 text-end">
-                    <strong>Total: ${total.toFixed(2)}</strong>
-                  </div>
+                  <Cart />
                 </div>
                 <div className="modal-footer">
                   <button className="btn btn-secondary" onClick={() => setShowCart(false)}>

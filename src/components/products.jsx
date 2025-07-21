@@ -29,14 +29,28 @@ function Products() {
     description: "",
     image: "",
   });
+  // State for selected category
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // React Query for products
-  // Fetch products from API using React Query
-  const { data: products = [], isLoading: loading, refetch } = useQuery({
-    queryKey: ['products'],
+  // Fetch categories from FakeStoreAPI
+  const { data: categories = [], isLoading: loadingCategories } = useQuery({
+    queryKey: ['categories'],
     queryFn: async () => {
-      // Fetch product data from fakestoreapi
-      const res = await fetch("https://fakestoreapi.com/products");
+      const res = await fetch('https://fakestoreapi.com/products/categories');
+      if (!res.ok) throw new Error('Failed to fetch categories');
+      return res.json();
+    },
+  });
+
+  // Fetch products, filtered by category if selected
+  const { data: products = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['products', selectedCategory],
+    queryFn: async () => {
+      let url = 'https://fakestoreapi.com/products';
+      if (selectedCategory && selectedCategory !== 'all') {
+        url = `https://fakestoreapi.com/products/category/${encodeURIComponent(selectedCategory)}`;
+      }
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
@@ -50,8 +64,8 @@ function Products() {
     }
   }, [editMessage]);
 
-  // Show loading indicator while products are being fetched
-  if (loading) return <div id="loading">Loading...</div>;
+  // Show loading indicator while products or categories are being fetched
+  if (loading || loadingCategories) return <div id="loading">Loading...</div>;
 
   return (
     <div className="container my-4">
@@ -61,6 +75,23 @@ function Products() {
           {editMessage}
         </div>
       )}
+
+      {/* Category Filter Dropdown */}
+      <div className="mb-4">
+        <label htmlFor="categoryFilter" className="form-label me-2">Filter by Category:</label>
+        <select
+          id="categoryFilter"
+          className="form-select d-inline-block w-auto"
+          value={selectedCategory}
+          onChange={e => setSelectedCategory(e.target.value)}
+        >
+          <option value="all">All</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="row">
         {/* Render each product card */}
         {products.map((product) => (

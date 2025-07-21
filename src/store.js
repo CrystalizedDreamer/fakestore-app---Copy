@@ -20,9 +20,26 @@ const productsSlice = createSlice({
     },
   },
 });
+// --- Cart Persistence Helpers ---
+function loadCartFromSession() {
+  try {
+    const data = sessionStorage.getItem('cart');
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+function saveCartToSession(cart) {
+  try {
+    sessionStorage.setItem('cart', JSON.stringify(cart));
+  } catch {
+    // Ignore write errors
+  }
+}
+
 const cartSlice = createSlice({
   name: 'cart',
-  initialState: [],
+  initialState: loadCartFromSession(),
   reducers: {
     addToCart: (state, action) => {
       const existing = state.find(item => item.id === action.payload.id);
@@ -50,9 +67,16 @@ const cartSlice = createSlice({
 export const { setProducts, addProduct, updateProduct, deleteProduct } = productsSlice.actions;
 export const { addToCart, removeFromCart, incrementQuantity, decrementQuantity, clearCart } = cartSlice.actions;
 
+
 export const store = configureStore({
   reducer: {
     products: productsSlice.reducer,
     cart: cartSlice.reducer,
   },
+});
+
+// Subscribe to cart changes and persist to sessionStorage
+store.subscribe(() => {
+  const cart = store.getState().cart;
+  saveCartToSession(cart);
 });
