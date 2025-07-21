@@ -3,18 +3,20 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import  { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import React from 'react';     
-import { useCart } from './components/CartContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeFromCart, incrementQuantity, decrementQuantity } from './store';
 import Products from './components/products.jsx'; 
 import AddProducts  from './components/addProducts.jsx';
 import Home from './components/home.jsx';
 
 
-function App() {
 
+function App() {
   // State to control cart modal visibility
   const [showCart, setShowCart] = React.useState(false);
-  // Use the cart context hook properly
-  const { cart, removeFromCart, incrementQuantity, decrementQuantity } = useCart();
+  // Use Redux for cart state and actions
+  const cart = useSelector(state => state.cart);
+  const dispatch = useDispatch();
   // Calculate total price
   const total = cart.reduce((sum, item) => sum + Number(item.price) * (item.quantity || 1), 0);
   // Calculate total quantity of items in cart
@@ -63,13 +65,13 @@ function App() {
                         <div>
                           <strong>{item.title}</strong> <span className="text-muted">${item.price}</span>
                           <div className="input-group input-group-sm mt-2" style={{ maxWidth: 120 }}>
-                            <button className="btn btn-outline-secondary" onClick={() => decrementQuantity(item.id)}>-</button>
+                            <button className="btn btn-outline-secondary" onClick={() => dispatch(decrementQuantity(item.id))}>-</button>
                             <input type="text" className="form-control text-center" value={item.quantity || 1} readOnly style={{ width: 40 }} />
-                            <button className="btn btn-outline-secondary" onClick={() => incrementQuantity(item.id)}>+</button>
+                            <button className="btn btn-outline-secondary" onClick={() => dispatch(incrementQuantity(item.id))}>+</button>
                           </div>
                         </div>
                       </div>
-                      <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(item.id)}>
+                      <button className="btn btn-danger btn-sm" onClick={() => dispatch(removeFromCart(item.id))}>
                         Remove
                       </button>
                     </li>

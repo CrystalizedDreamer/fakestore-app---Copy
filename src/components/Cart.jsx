@@ -1,10 +1,12 @@
 import React from "react";
-import { useCart } from "./CartContext";
+import { useSelector, useDispatch } from 'react-redux';
+import { removeFromCart, clearCart } from '../store';
 
 // Displays the items currently in the cart
 export default function Cart() {
   // Get cart state and actions from the cart context
-  const { cart, removeFromCart, clearCart } = useCart();
+  const cart = useSelector(state => state.cart);
+  const dispatch = useDispatch();
 
   // If the cart is empty, show a message
   if (cart.length === 0) {
@@ -19,18 +21,16 @@ export default function Cart() {
         {cart.map((item, idx) => (
           <li key={item.id + '-' + idx} className="list-group-item d-flex justify-content-between align-items-center">
             <div>
-              {/* Display product title and price */}
               <strong>{item.title}</strong> <span className="text-muted">${item.price}</span>
             </div>
-            {/* Button to remove this item from the cart */}
-            <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(item.id)}>
+            <button className="btn btn-danger btn-sm" onClick={() => dispatch(removeFromCart(item.id))}>
               Remove
             </button>
           </li>
         ))}
       </ul>
       {/* Button to clear the entire cart */}
-      <button className="btn btn-warning" onClick={clearCart}>
+      <button className="btn btn-warning" onClick={() => dispatch(clearCart())}>
         Clear Cart
       </button>
     </div>
